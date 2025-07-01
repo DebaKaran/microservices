@@ -14,7 +14,7 @@ public class CustomerMapperTest {
         customer.setEmail("alice@example.com");
         customer.setMobileNumber("9876543210");
 
-        CustomerDto dto = CustomerMapper.mapToCustomerDto(customer, new CustomerDto());
+        CustomerDto dto = CustomerMapper.mapToCustomerDto(customer);
 
         assertEquals("Alice", dto.getName());
         assertEquals("alice@example.com", dto.getEmail());
@@ -28,7 +28,7 @@ public class CustomerMapperTest {
         dto.setEmail("bob@example.com");
         dto.setMobileNumber("1234567890");
 
-        Customer customer = CustomerMapper.mapToCustomer(dto, new Customer());
+        Customer customer = CustomerMapper.mapToCustomer(dto);
 
         assertEquals("Bob", customer.getName());
         assertEquals("bob@example.com", customer.getEmail());

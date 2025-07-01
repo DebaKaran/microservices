@@ -7,13 +7,11 @@ import com.easybytes.accounts.exceptions.CustomerAlreadyExistsException;
 import com.easybytes.accounts.repository.AccountsRepository;
 import com.easybytes.accounts.repository.CustomerRepository;
 import com.easybytes.accounts.services.impl.AccountServiceImpl;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Optional;
 
