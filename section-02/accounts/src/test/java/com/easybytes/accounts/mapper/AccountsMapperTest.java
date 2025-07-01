@@ -15,7 +15,7 @@ public class AccountsMapperTest {
         accounts.setAccountType("Savings");
         accounts.setBranchAddress("Bangalore");
 
-        AccountsDto accountsDto = AccountsMapper.mapToAccountsDto(accounts, new AccountsDto());
+        AccountsDto accountsDto = AccountsMapper.mapToAccountsDto(accounts);
 
         assertEquals(1234567890L, accountsDto.getAccountNumber());
         assertEquals("Savings", accountsDto.getAccountType());
@@ -29,7 +29,7 @@ public class AccountsMapperTest {
         accountsDto.setAccountType("Current");
         accountsDto.setBranchAddress("Bangalore");
 
-        Accounts accounts = AccountsMapper.mapToAccounts(accountsDto, new Accounts());
+        Accounts accounts = AccountsMapper.mapToAccounts(accountsDto);
 
         assertEquals(9876543210L, accounts.getAccountNumber());
         assertEquals("Current", accounts.getAccountType());
