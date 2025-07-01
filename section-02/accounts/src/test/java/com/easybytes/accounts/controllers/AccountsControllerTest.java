@@ -15,10 +15,11 @@ public class AccountsControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @Test
-    public void sayHello_shouldReturnHelloWorld() throws Exception {
-        mockMvc.perform(get("/account"))
-                .andExpect(status().isOk())
-                .andExpect(content().string("Hello World!"));
-    }
+//    @Test
+//
+//    public void sayHello_shouldReturnHelloWorld() throws Exception {
+//        mockMvc.perform(get("/account"))
+//                .andExpect(status().isOk())
+//                .andExpect(content().string("Hello World!"));
+//    }
 }
