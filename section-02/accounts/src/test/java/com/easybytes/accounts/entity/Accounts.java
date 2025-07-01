@@ -1,6 +1,7 @@
 package com.easybytes.accounts.entity;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
 import lombok.*;
 
 @Entity
