@@ -1,0 +1,28 @@
+# === Java & Maven ===
+**/target/
+**/logs/
+**/bin/
+**/build/
+
+# === IntelliJ IDEA ===
+**/.idea/
+**/*.iml
+
+# === Eclipse ===
+**/.classpath
+**/.project
+**/.settings/
+
+# === VS Code ===
+**/.vscode/
+
+# === OS generated ===
+.DS_Store
+Thumbs.db
+
+# === Environment files ===
+*.env
+.env.*
+
+# === Misc ===
+*.log
