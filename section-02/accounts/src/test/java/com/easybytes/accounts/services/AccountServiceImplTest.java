@@ -1,7 +1,6 @@
 package com.easybytes.accounts.services;
 
 import com.easybytes.accounts.dtos.CustomerAccountResponseDto;
-import com.easybytes.accounts.dtos.CustomerDto;
 import com.easybytes.accounts.entity.Accounts;
 import com.easybytes.accounts.entity.Customer;
 import com.easybytes.accounts.exceptions.CustomerAlreadyExistsException;
@@ -36,7 +35,7 @@ public class AccountServiceImplTest {
     AccountServiceImpl accountService;
 
     @Test
-    public void createAccount_shouldCreateAccountSuccessfully() {
+    public void createAccount_whenCustomerDoesNotExist_shouldCreateAccount() {
         Customer customer = new Customer();
 
         //Given
@@ -101,7 +100,7 @@ public class AccountServiceImplTest {
         assertEquals("xyz@example.com", responseDto.getCustomerDto().getEmail());
         assertEquals("1234567890", responseDto.getCustomerDto().getMobileNumber());
 
-        assertEquals("SAVING", responseDto.getAccountsDto().getAccountType());
+        assertEquals("SAVINGS", responseDto.getAccountsDto().getAccountType());
         assertEquals(12345L, responseDto.getAccountsDto().getAccountNumber());
         assertEquals("Bangalore, India", responseDto.getAccountsDto().getBranchAddress());
 
@@ -159,5 +158,102 @@ public class AccountServiceImplTest {
 
     }
 
+    @Test
+    public void updateAccount_shouldUpdateCustomerAndAccount_whenValidDataProvided() {
+        CustomerAccountResponseDto responseDto = TestDataUtil.getCustomerAccountResponseDto();
+        Accounts accounts = TestDataUtil.getAccounts();
+        Customer customer = TestDataUtil.getCustomer();
+
+        //given
+        when(accountsRepository.findById(anyLong()))
+                .thenReturn(Optional.of(accounts));
+
+        when(accountsRepository.save(any(Accounts.class)))
+                .thenReturn(accounts);
+
+        when(customerRepository.findById(anyLong()))
+                .thenReturn(Optional.of(customer));
+
+        when(customerRepository.save(any(Customer.class)))
+                .thenReturn(customer);
+
+        //when
+        boolean isUpdated = accountService.updateAccount(responseDto);
+
+        //then
+        assertTrue(isUpdated);
+
+        //verifacation
+        verify(accountsRepository, times(1)).findById(anyLong());
+        verify(accountsRepository, times(1)).save(any(Accounts.class));
+        verify(customerRepository, times(1)).findById(anyLong());
+        verify(customerRepository, times(1)).save(any(Customer.class));
+
+    }
+
+    @Test
+    public void updateAccount_shouldThrowResourceNotFoundException_whenAccountNotFound() {
+        CustomerAccountResponseDto responseDto = TestDataUtil.getCustomerAccountResponseDto();
+
+        //given
+        when(accountsRepository.findById(anyLong())).thenReturn(Optional.empty());
+
+        //when + then
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> {
+            accountService.updateAccount(responseDto);
+        });
+
+        String accountNumber = responseDto.getAccountsDto().getAccountNumber().toString();
+        String expectedMessage = "Account not found with the given input data AccountNumber : '" + accountNumber + "'";
+        //Then
+        assertAll(
+                () -> assertEquals("Account not found with the given input data AccountNumber : '12345'", exception.getMessage()),
+                () -> verify(accountsRepository, times(1)).findById(responseDto.getAccountsDto().getAccountNumber())
+        );
+        verifyNoMoreInteractions(accountsRepository);
+        verifyNoInteractions(customerRepository);
+
+    }
+
+    @Test
+    public void updateAccount_shouldThrowResourceNotFoundException_whenCustomerNotFound() {
+        CustomerAccountResponseDto responseDto = TestDataUtil.getCustomerAccountResponseDto();
+        Accounts accounts = TestDataUtil.getAccounts();
+
+        //given
+        when(accountsRepository.findById(anyLong())).thenReturn(Optional.of(accounts));
+        when(accountsRepository.save(any(Accounts.class))).thenReturn(accounts);
+
+        when(customerRepository.findById(anyLong())).thenReturn(Optional.empty());
+
+        //when + then
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> {
+            accountService.updateAccount(responseDto);
+        });
+
+        Long customerId = accounts.getCustomerId();
+        String expectedMessage = "Customer not found with the given input data CustomerID : '" + customerId + "'";
+        //Then
+        assertAll(
+                () -> assertEquals(expectedMessage, exception.getMessage()),
+                () -> verify(accountsRepository, times(1)).findById(responseDto.getAccountsDto().getAccountNumber()),
+                () -> verify(accountsRepository, times(1)).save(accounts),
+                () -> verify(customerRepository, times(1)).findById(accounts.getCustomerId())
+        );
+        verifyNoMoreInteractions(accountsRepository);
+        verifyNoMoreInteractions(customerRepository);
+
+    }
+
+    @Test
+    public void updateAccount_shouldReturnFalse_whenAccountsDtoIsNull() {
+        CustomerAccountResponseDto customerAccountResponseDto = new CustomerAccountResponseDto();
+
+        boolean isUpdated = accountService.updateAccount(customerAccountResponseDto);
+
+        assertFalse(isUpdated);
+        verifyNoInteractions(customerRepository);
+        verifyNoInteractions(accountsRepository);
+    }
 
 }
