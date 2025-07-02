@@ -9,6 +9,7 @@ import com.easybytes.accounts.exceptions.ResourceNotFoundException;
 import com.easybytes.accounts.repository.AccountsRepository;
 import com.easybytes.accounts.repository.CustomerRepository;
 import com.easybytes.accounts.services.impl.AccountServiceImpl;
+import com.easybytes.accounts.utils.TestDataUtil;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -49,7 +50,7 @@ public class AccountServiceImplTest {
 //                .thenReturn(...);
 
         //when
-        accountService.createAccount(getCustomerDto());
+        accountService.createAccount(TestDataUtil.getCustomerDto());
 
         //then
         verify(customerRepository, times(1)).findByMobileNumber(anyString());
@@ -68,7 +69,7 @@ public class AccountServiceImplTest {
 
         //when + given
         assertThrows(CustomerAlreadyExistsException.class, () -> {
-                accountService.createAccount(getCustomerDto());
+                accountService.createAccount(TestDataUtil.getCustomerDto());
         });
 
         //then
@@ -79,8 +80,8 @@ public class AccountServiceImplTest {
 
     @Test
     void fetchAccount_shouldReturnCustomerAccountResponse_whenCustomerAndAccountExist() {
-        Customer customer = getCustomer();
-        Accounts accounts = getAccounts();
+        Customer customer = TestDataUtil.getCustomer();
+        Accounts accounts = TestDataUtil.getAccounts();
 
         //given
         when(customerRepository.findByMobileNumber(anyString()))
@@ -124,7 +125,7 @@ public class AccountServiceImplTest {
         });
 
         //Then
-        assertEquals("Customer not found with the given input data mobileNumber : '123456789'", exception.getMessage());
+        assertEquals("Customer not found with the given input data mobileNumber : '1234567890'", exception.getMessage());
         verify(customerRepository, times(1)).findByMobileNumber(mobileNumber);
         verifyNoMoreInteractions(customerRepository);
         verifyNoInteractions(accountsRepository); // since customer is not found
@@ -132,7 +133,7 @@ public class AccountServiceImplTest {
 
     @Test
     void fetchAccount_shouldThrowResourceNotFoundException_whenAccountNotFoundForCustomer() {
-        Customer customer = getCustomer();
+        Customer customer = TestDataUtil.getCustomer();
         String mobileNumber = "1234567890";
 
         //given
@@ -158,29 +159,5 @@ public class AccountServiceImplTest {
 
     }
 
-    private static Accounts getAccounts() {
-        Accounts accounts = new Accounts();
-        accounts.setCustomerId(1L);
-        accounts.setAccountType("SAVING");
-        accounts.setAccountNumber(12345L);
-        accounts.setBranchAddress("Bangalore, India");
 
-        return accounts;
-    }
-    private static Customer getCustomer() {
-        Customer customer = new Customer();
-        customer.setCustomerId(1L);
-        customer.setName("ABC");
-        customer.setEmail("xyz@example.com");
-        customer.setMobileNumber("1234567890");
-        return  customer;
-    }
-
-    private static CustomerDto getCustomerDto() {
-        CustomerDto customerDto = new CustomerDto();
-        customerDto.setName("John Doe");
-        customerDto.setEmail("john@example.com");
-        customerDto.setMobileNumber("9876543210");
-        return customerDto;
-    }
 }
