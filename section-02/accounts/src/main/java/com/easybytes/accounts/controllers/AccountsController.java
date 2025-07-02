@@ -31,4 +31,18 @@ public class AccountsController {
         CustomerAccountResponseDto customerAccountResponseDto = iAccountService.fetchAccount(mobileNum);
         return ResponseEntity.status(HttpStatus.OK).body(customerAccountResponseDto);
     }
+
+    @PutMapping("/update")
+    public ResponseEntity<ResponseDto> updateAccountDetails(@RequestBody CustomerAccountResponseDto responseDto) {
+        boolean isUpdated = iAccountService.updateAccount(responseDto);
+        if(isUpdated) {
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(new ResponseDto(AccountsConstants.STATUS_200, AccountsConstants.MESSAGE_200));
+        }else{
+            return ResponseEntity
+                    .status(HttpStatus.EXPECTATION_FAILED)
+                    .body(new ResponseDto(AccountsConstants.STATUS_417, AccountsConstants.MESSAGE_417_UPDATE));
+        }
+    }
 }
