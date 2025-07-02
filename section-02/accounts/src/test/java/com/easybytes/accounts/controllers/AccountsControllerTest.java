@@ -1,9 +1,13 @@
 package com.easybytes.accounts.controllers;
 
 import com.easybytes.accounts.constants.AccountsConstants;
+import com.easybytes.accounts.dtos.AccountsDto;
+import com.easybytes.accounts.dtos.CustomerAccountResponseDto;
 import com.easybytes.accounts.dtos.CustomerDto;
 import com.easybytes.accounts.exceptions.CustomerAlreadyExistsException;
+import com.easybytes.accounts.exceptions.ResourceNotFoundException;
 import com.easybytes.accounts.services.IAccountService;
+import com.easybytes.accounts.utils.TestDataUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,9 +17,9 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 
@@ -33,7 +37,7 @@ public class AccountsControllerTest {
 
     @Test
     public void createAccount_Successful() throws Exception {
-        CustomerDto customerDto = getCustomerDto();
+        CustomerDto customerDto = TestDataUtil.getCustomerDto();
 
         String custometDtoJsonString = objectMapper.writeValueAsString(customerDto);
 
@@ -49,7 +53,7 @@ public class AccountsControllerTest {
 
     @Test
     void createAccount_customerAlreadyExists_shouldReturnBadRequest() throws Exception {
-        CustomerDto customerDto = getCustomerDto();
+        CustomerDto customerDto = TestDataUtil.getCustomerDto();
         String custometDtoJsonString = objectMapper.writeValueAsString(customerDto);
 
         doThrow(new CustomerAlreadyExistsException("Customer already registered"))
@@ -64,11 +68,60 @@ public class AccountsControllerTest {
         verify(accountService).createAccount(any(CustomerDto.class));
     }
 
-    private static CustomerDto getCustomerDto() {
-        CustomerDto customerDto = new CustomerDto();
-        customerDto.setName("John Doe");
-        customerDto.setEmail("john@example.com");
-        customerDto.setMobileNumber("9876543210");
-        return customerDto;
+    @Test
+    public void fetchAccountDetails_Successful() throws Exception {
+        String mobileNumber = "1234567890";
+        CustomerAccountResponseDto responseDto = TestDataUtil.getCustomerAccountResponseDto();
+
+        //given
+        when(accountService.fetchAccount(mobileNumber)).thenReturn(responseDto);
+
+        mockMvc.perform(get("/api/fetch")
+                        .param("mobileNum", mobileNumber)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.customerDto.name").value("ABC"))
+                .andExpect(jsonPath("$.accountsDto.accountNumber").value(12345L));
+
+        verify(accountService, times(1)).fetchAccount(mobileNumber);
+
     }
+
+    @Test
+    void fetchAccountDetails_shouldReturnNotFound_whenCustomerNotFound() throws Exception {
+        String mobileNumber = "1234567890";
+
+        // Given: Service layer throws exception
+        when(accountService.fetchAccount(mobileNumber))
+                .thenThrow(new ResourceNotFoundException("Customer", "mobileNumber", mobileNumber));
+
+        //when + then
+        mockMvc.perform(get("/api/fetch")
+                .param("mobileNum", mobileNumber)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.errorMessage").value("Customer not found with the given input data mobileNumber : '1234567890'"))
+                .andExpect(jsonPath("$.errorCode").value("NOT_FOUND"));
+    }
+
+    @Test
+    void fetchAccountDetails_shouldReturnNotFound_whenAccountNotFoundForCustomer() throws Exception {
+        String mobileNumber = "1234567890";
+        String customerId = "1";
+
+        // Given: Service layer throws exception
+
+        when(accountService.fetchAccount(mobileNumber))
+                .thenThrow(new ResourceNotFoundException("Account", "customerId", customerId));
+
+        //when + then
+        mockMvc.perform(get("/api/fetch")
+                        .param("mobileNum", mobileNumber)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.errorMessage").value("Account not found with the given input data customerId : '1'"))
+                .andExpect(jsonPath("$.errorCode").value("NOT_FOUND"));
+    }
+
+
 }
