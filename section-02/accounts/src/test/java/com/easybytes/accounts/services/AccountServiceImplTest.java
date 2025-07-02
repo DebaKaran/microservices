@@ -256,4 +256,44 @@ public class AccountServiceImplTest {
         verifyNoInteractions(accountsRepository);
     }
 
+    @Test
+    void deleteAccount_shouldDeleteCustomerAndAccount_whenValidMobileNumberProvided() {
+        // Arrange
+        String mobileNumber = "1234567890";
+        Customer customer = TestDataUtil.getCustomer(); // with customerId set
+
+        when(customerRepository.findByMobileNumber(mobileNumber))
+                .thenReturn(Optional.of(customer));
+
+        // Act
+        boolean result = accountService.deleteAccount(mobileNumber);
+
+        // Assert
+        assertTrue(result);
+        verify(customerRepository).findByMobileNumber(mobileNumber);
+        verify(accountsRepository).deleteByCustomerId(customer.getCustomerId());
+        verify(customerRepository).deleteById(customer.getCustomerId());
+    }
+
+    @Test
+    void deleteAccount_shouldThrowResourceNotFoundException_whenCustomerNotFound() {
+        String mobileNumber = "1234567890";
+
+        when(customerRepository.findByMobileNumber(mobileNumber))
+                .thenReturn(Optional.empty());
+
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> {
+            accountService.deleteAccount(mobileNumber);
+        });
+
+        assertEquals(
+                "Customer not found with the given input data mobileNumber : '1234567890'",
+                exception.getMessage()
+        );
+
+        verify(customerRepository).findByMobileNumber(mobileNumber);
+        verifyNoInteractions(accountsRepository);
+    }
+
+
 }
