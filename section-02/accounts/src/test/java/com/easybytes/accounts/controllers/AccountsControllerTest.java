@@ -4,10 +4,12 @@ import com.easybytes.accounts.constants.AccountsConstants;
 import com.easybytes.accounts.dtos.AccountsDto;
 import com.easybytes.accounts.dtos.CustomerAccountResponseDto;
 import com.easybytes.accounts.dtos.CustomerDto;
+import com.easybytes.accounts.dtos.ResponseDto;
 import com.easybytes.accounts.exceptions.CustomerAlreadyExistsException;
 import com.easybytes.accounts.exceptions.ResourceNotFoundException;
 import com.easybytes.accounts.services.IAccountService;
 import com.easybytes.accounts.utils.TestDataUtil;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,8 +20,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 
@@ -123,5 +124,42 @@ public class AccountsControllerTest {
                 .andExpect(jsonPath("$.errorCode").value("NOT_FOUND"));
     }
 
+    @Test
+    void updateAccountDetails_shouldReturn200Ok_whenUpdateIsSuccessful() throws JsonProcessingException, Exception {
+        CustomerAccountResponseDto responseDto = TestDataUtil.getCustomerAccountResponseDto();
+        String responseDtoInString = objectMapper.writeValueAsString(responseDto);
+
+        ResponseDto expectedResponse = new ResponseDto(AccountsConstants.STATUS_200, AccountsConstants.MESSAGE_200);
+        String expectedResponseJson = objectMapper.writeValueAsString(expectedResponse);
+
+        when(accountService.updateAccount(responseDto))
+                .thenReturn(true);
+
+        mockMvc.perform(put("/api/update")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .content(responseDtoInString))
+                .andExpect(status().isOk())
+                .andExpect(content().json(expectedResponseJson));
+    }
+
+    @Test
+    void updateAccountDetails_shouldReturn417ExpectationFailed_whenUpdateIsUnsuccessful() throws Exception {
+        CustomerAccountResponseDto responseDto = TestDataUtil.getCustomerAccountResponseDto();
+        String responseDtoInString = objectMapper.writeValueAsString(responseDto);
+
+        ResponseDto expectedResponse = new ResponseDto(AccountsConstants.STATUS_417, AccountsConstants.MESSAGE_417_UPDATE);
+        String expectedResponseJson = objectMapper.writeValueAsString(expectedResponse);
+
+        when(accountService.updateAccount(responseDto))
+                .thenReturn(false);
+
+        mockMvc.perform(put("/api/update")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .content(responseDtoInString))
+                .andExpect(status().isExpectationFailed())
+                .andExpect(content().json(expectedResponseJson));
+    }
 
 }
