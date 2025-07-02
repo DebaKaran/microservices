@@ -162,4 +162,42 @@ public class AccountsControllerTest {
                 .andExpect(content().json(expectedResponseJson));
     }
 
+    @Test
+    void deleteAccountDetails_shouldReturn200Ok_whenDeletionSucceeds() throws JsonProcessingException, Exception {
+        String mobileNumber = "1234567890";
+
+        ResponseDto expectedResponse = new ResponseDto(AccountsConstants.STATUS_200, AccountsConstants.MESSAGE_200);
+        String expectedResponseJson = objectMapper.writeValueAsString(expectedResponse);
+
+        when(accountService.deleteAccount(mobileNumber))
+                .thenReturn(true);
+
+        mockMvc.perform(delete("/api/delete")
+                        .param("mobileNumber", mobileNumber)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().json(expectedResponseJson));
+    }
+
+    @Test
+    void deleteAccountDetails_shouldReturn500InternalServerError_whenDeletionFails() throws Exception {
+        String mobileNumber = "1234567890";
+
+        ResponseDto expectedResponse = new ResponseDto(AccountsConstants.STATUS_500, AccountsConstants.MESSAGE_500);
+        String expectedResponseJson = objectMapper.writeValueAsString(expectedResponse);
+
+        when(accountService.deleteAccount(mobileNumber))
+                .thenReturn(false);
+
+        mockMvc.perform(delete("/api/delete")
+                        .param("mobileNumber", mobileNumber)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().is5xxServerError())
+                .andExpect(content().json(expectedResponseJson));
+    }
+
+
+
 }
