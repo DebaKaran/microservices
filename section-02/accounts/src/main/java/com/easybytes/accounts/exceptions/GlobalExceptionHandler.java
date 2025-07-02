@@ -27,7 +27,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponseDto> handleResourceNotFoundException(ResourceNotFoundException ex, WebRequest request) {
         ErrorResponseDto error = new ErrorResponseDto(
                 request.getDescription(false),
-                HttpStatus.BAD_REQUEST,
+                HttpStatus.NOT_FOUND,
                 ex.getMessage(),
                 LocalDateTime.now()
         );
