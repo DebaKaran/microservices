@@ -10,4 +10,11 @@ public interface IAccountService {
     CustomerAccountResponseDto fetchAccount(final String mobileNum);
 
     boolean updateAccount(CustomerAccountResponseDto customerAccountResponseDto);
+
+    /**
+     *
+     * @param mobileNumber - Input Mobile Number
+     * @return boolean indicating if the delete of Account details is successful or not
+     */
+    boolean deleteAccount(String mobileNumber);
 }
