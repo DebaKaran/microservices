@@ -37,7 +37,7 @@ public class TestDataUtil {
 
     public static CustomerDto getCustomerDto() {
         CustomerDto customerDto = new CustomerDto();
-        customerDto.setName("ABC");
+        customerDto.setName("ABCDE");
         customerDto.setEmail("xyz@example.com");
         customerDto.setMobileNumber("1234567890");
         return customerDto;

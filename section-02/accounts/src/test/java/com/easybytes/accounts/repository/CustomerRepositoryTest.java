@@ -1,16 +1,20 @@
 package com.easybytes.accounts.repository;
 
+import com.easybytes.accounts.audits.AuditorAwareImpl;
 import com.easybytes.accounts.entity.Customer;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@DataJpaTest
+@SpringBootTest
+@Import(AuditorAwareImpl.class)
 public class CustomerRepositoryTest {
 
     @Autowired
