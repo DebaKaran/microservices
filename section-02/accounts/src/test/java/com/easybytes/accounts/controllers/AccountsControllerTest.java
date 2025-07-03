@@ -1,7 +1,6 @@
 package com.easybytes.accounts.controllers;
 
 import com.easybytes.accounts.constants.AccountsConstants;
-import com.easybytes.accounts.dtos.AccountsDto;
 import com.easybytes.accounts.dtos.CustomerAccountResponseDto;
 import com.easybytes.accounts.dtos.CustomerDto;
 import com.easybytes.accounts.dtos.ResponseDto;
@@ -13,7 +12,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -28,7 +28,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 
-@WebMvcTest(AccountsController.class)
+@SpringBootTest
+@AutoConfigureMockMvc
 public class AccountsControllerTest {
 
     @Autowired
@@ -85,7 +86,7 @@ public class AccountsControllerTest {
                         .param("mobileNum", mobileNumber)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.customerDto.name").value("ABC"))
+                .andExpect(jsonPath("$.customerDto.name").value("ABCDE"))
                 .andExpect(jsonPath("$.accountsDto.accountNumber").value(12345L));
 
         verify(accountService, times(1)).fetchAccount(mobileNumber);
