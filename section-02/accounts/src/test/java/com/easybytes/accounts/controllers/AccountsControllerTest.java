@@ -18,6 +18,10 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.Arrays;
+
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.stringContainsInOrder;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -196,6 +200,34 @@ public class AccountsControllerTest {
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().is5xxServerError())
                 .andExpect(content().json(expectedResponseJson));
+    }
+
+    @Test
+    public void createAccount_shouldReturn400_whenCustomerDtoInvalid() throws Exception {
+        CustomerDto invalidCustomerDto = TestDataUtil.getInvalidCustomerDto();
+
+        String requestBody = objectMapper.writeValueAsString(invalidCustomerDto);
+
+        mockMvc.perform(post("/api/create")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.errorMessage",
+                        stringContainsInOrder(Arrays.asList(
+                                "mobileNumber=Mobile number must be exactly 10 digits",
+                                "name=The length of the customer name should be between 5 and 30",
+                                "email=Email address should be a valid value"
+                        ))));
+    }
+
+    @Test
+    void fetchAccount_shouldReturn400_whenMobileNumberInvalid() throws Exception {
+        mockMvc.perform(get("/api/fetch")
+                .param("mobileNum", "123")) // invalid number
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.errorMessage",
+                        containsString("mobileNum=Mobile number must be exactly 10 digits")));
+
     }
 
 

@@ -46,4 +46,12 @@ public class TestDataUtil {
     public static CustomerAccountResponseDto getCustomerAccountResponseDto() {
         return new CustomerAccountResponseDto(getCustomerDto(), getAccountsDto());
     }
+
+    public static CustomerDto getInvalidCustomerDto() {
+        CustomerDto invalidCustomer = new CustomerDto();
+        invalidCustomer.setName("Ab"); // too short
+        invalidCustomer.setEmail("invalid-email"); // invalid
+        invalidCustomer.setMobileNumber("123"); // invalid
+        return  invalidCustomer;
+    }
 }
