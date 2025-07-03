@@ -108,8 +108,9 @@ public class AccountServiceImpl implements IAccountService {
         newAccount.setBranchAddress(AccountsConstants.ADDRESS);
 
         // 🛠️ Fix for error
-        newAccount.setCreatedAt(LocalDateTime.now());
-        newAccount.setCreatedBy("system");
+        // below two lines are not required as we are using AuditAwareImpl
+//        newAccount.setCreatedAt(LocalDateTime.now());
+//        newAccount.setCreatedBy("system");
         return newAccount;
     }
 }
