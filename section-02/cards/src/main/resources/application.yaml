@@ -1,8 +1,6 @@
 server:
-  port: 8085
+  port: 9000
 spring:
-  application:
-    name: accounts
   datasource:
     url: jdbc:h2:mem:testdb
     driverClassName: org.h2.Driver
@@ -14,23 +12,24 @@ spring:
   jpa:
     database-platform: org.hibernate.dialect.H2Dialect
     hibernate:
-      ddl-auto: none
+      ddl-auto: update
     show-sql: true
   config:
     import:
       - "application_qa.yaml"
       - "application_prod.yaml"
   profiles:
-    active: "qa"
+    active:
+      - "qa"
 
 build:
   version: "3.0"
 
-accounts:
-  message: "Welcome to EazyBank accounts related local APIs "
+cards:
+  message: "Welcome to EazyBank cards related local APIs "
   contactDetails:
-    name: "John Doe - Developer"
-    email: "john@eazybank.com"
+    name: "Dragos Lech - Developer"
+    email: "dragos@eazybank.com"
   onCallSupport:
-    - (555) 555-1234
-    - (555) 523-1345
+    - (412) 419-3491
+    - (915) 382-1932
